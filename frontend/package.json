@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "name": "@voltguard/frontend",
+  "scripts": {
+    "dev": "vite --port=3000 --host=127.0.0.1 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit",
+    "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true });\""
+  },
+  "dependencies": {
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "motion": "^12.23.24",
+    "lucide-react": "^0.546.0",
+    "@voltguard/shared": "1.0.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
+  }
+}

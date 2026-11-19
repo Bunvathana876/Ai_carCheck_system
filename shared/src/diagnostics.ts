@@ -1,5 +1,38 @@
 export type DiagnosticTab = 'battery' | 'drivetrain' | 'thermal';
 
+export interface VehicleProfile {
+  id: string;
+  brand: string;
+  bay: string;
+  vin: string;
+  model: string;
+  technicianName: string;
+  technicianInitials: string;
+  technicianRole: string;
+  baseChargePercent: number;
+  rangeKm: number;
+}
+
+export interface ScanReport {
+  id: string;
+  completedAt: string;
+  source: 'sample';
+  summary: import('./diagnosticsLogic.js').PackSummary;
+}
+
+export interface DashboardData {
+  profile: VehicleProfile;
+  source: 'sample';
+  modules: BatteryModule[];
+  systems: SystemMetric[];
+  assets: ConnectedAsset[];
+  notifications: NotificationItem[];
+  eventsByDate: Record<string, ServiceEvent[]>;
+  initialDate: string;
+  lastScan: ScanReport | null;
+  packSummary: import('./diagnosticsLogic.js').PackSummary;
+}
+
 export type VehicleViewAngle = 'cutaway' | 'top-iso' | 'rear-quarter';
 
 export interface BatteryModule {

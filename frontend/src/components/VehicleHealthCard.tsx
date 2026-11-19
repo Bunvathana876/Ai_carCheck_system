@@ -10,9 +10,9 @@ import type {
   DiagnosticTab,
   VehicleHotspot,
   VehicleViewAngle,
-} from '../types/diagnostics';
-import { ASSET_IMAGES, VEHICLE_HOTSPOTS } from '../data/mockDiagnostics';
-import type { PackSummary, TabCallout } from '../utils/diagnosticsLogic';
+} from '@voltguard/shared/diagnostics';
+import { ASSET_IMAGES, VEHICLE_HOTSPOTS } from '../data/vehicleVisuals';
+import type { PackSummary, TabCallout } from '@voltguard/shared/diagnosticsLogic';
 
 interface VehicleHealthCardProps {
   activeTab: DiagnosticTab;
@@ -102,7 +102,7 @@ export function VehicleHealthCard({
             Vehicle Health
           </h2>
           <p className="text-[13px] font-medium text-slate-600 mt-1">
-            Live EV diagnostic profile
+            Demo EV diagnostic profile · Sample data
           </p>
         </div>
 
@@ -276,7 +276,7 @@ export function VehicleHealthCard({
                 ·
               </span>
               <span>
-                {selectedHotspot ? selectedHotspot.summary : callout.secondaryDetail}
+                {callout.secondaryDetail}
               </span>
             </motion.div>
           )}

@@ -9,8 +9,8 @@ import {
   Radio,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { NotificationItem } from '../types/diagnostics';
-import { ASSET_IMAGES, VEHICLE_PROFILE } from '../data/mockDiagnostics';
+import type { NotificationItem, VehicleProfile } from '@voltguard/shared/diagnostics';
+import { ASSET_IMAGES } from '../data/vehicleVisuals';
 
 interface TopNavBarProps {
   liveScanActive: boolean;
@@ -19,17 +19,12 @@ interface TopNavBarProps {
   modulesExpanded: boolean;
   notifications: NotificationItem[];
   onMarkAllRead: () => void;
-  selectedBay: string;
-  onSelectBay: (bay: string) => void;
+  profile: VehicleProfile;
+  vehicles: VehicleProfile[];
+  onSelectVehicle: (id: string) => void;
 }
 
 const WAVE_BAR_HEIGHTS = [8, 14, 18, 11, 20, 15, 9, 17, 13, 19, 10];
-const WORKSHOP_BAYS = [
-  'Workshop Bay 03 · VIN VG24-EV-839214',
-  'Workshop Bay 01 · VIN VG24-EV-714082',
-  'Dyno Cell 02 · VIN VG24-EV-902511',
-];
-
 export function TopNavBar({
   liveScanActive,
   onToggleLiveScan,
@@ -37,8 +32,9 @@ export function TopNavBar({
   modulesExpanded,
   notifications,
   onMarkAllRead,
-  selectedBay,
-  onSelectBay,
+  profile,
+  vehicles,
+  onSelectVehicle,
 }: TopNavBarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -93,7 +89,7 @@ export function TopNavBar({
 
         <div className="min-w-0 flex-1">
           <h1 className="text-[16px] sm:text-[17px] font-bold tracking-tight text-slate-900 leading-tight whitespace-nowrap">
-            {VEHICLE_PROFILE.brand}
+            {profile.brand}
           </h1>
           <div className="flex items-center gap-1.5 mt-0.5 text-[11px] sm:text-xs text-slate-500 font-medium tabular-nums min-w-0">
             <span
@@ -102,7 +98,7 @@ export function TopNavBar({
               }`}
               aria-hidden="true"
             />
-            <span className="truncate">{selectedBay}</span>
+            <span className="truncate">{`${profile.bay} · VIN ${profile.vin}`}</span>
           </div>
         </div>
 
@@ -118,14 +114,14 @@ export function TopNavBar({
               <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400">
                 Active Service Bays
               </div>
-              {WORKSHOP_BAYS.map((bay) => {
-                const active = bay === selectedBay;
+              {vehicles.map((vehicle) => {
+                const active = vehicle.id === profile.id;
                 return (
                   <button
-                    key={bay}
+                    key={vehicle.id}
                     type="button"
                     onClick={() => {
-                      onSelectBay(bay);
+                      onSelectVehicle(vehicle.id);
                       setBayMenuOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${
@@ -134,7 +130,7 @@ export function TopNavBar({
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <span className="truncate tabular-nums">{bay}</span>
+                    <span className="truncate tabular-nums">{vehicle.bay} · VIN {vehicle.vin}</span>
                     {active && <Check className="w-3.5 h-3.5 shrink-0" />}
                   </button>
                 );
@@ -144,7 +140,7 @@ export function TopNavBar({
         </AnimatePresence>
       </div>
 
-      {/* Right: Live Battery Scan + Utility Actions + Technician Profile */}
+      {/* Right: Demo Battery Scan + Utility Actions + Technician Profile */}
       <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-3 w-full sm:w-auto sm:ml-auto">
         <motion.button
           type="button"
@@ -197,7 +193,7 @@ export function TopNavBar({
           </span>
 
           <span className="text-xs sm:text-[13px] font-medium tracking-tight">
-            {liveScanActive ? 'Scanning Pack…' : 'Live Battery Scan'}
+            {liveScanActive ? 'Scanning Pack…' : 'Demo Battery Scan'}
           </span>
 
           <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
@@ -309,10 +305,10 @@ export function TopNavBar({
             className="flex items-center gap-2.5 sm:pl-1 sm:pr-2 py-0.5 rounded-full hover:bg-white/80 transition-colors cursor-pointer shrink-0"
           >
             <span className="w-9 h-9 rounded-full bg-[#0D4A38] text-white text-xs font-semibold flex items-center justify-center shrink-0">
-              {VEHICLE_PROFILE.technicianInitials}
+              {profile.technicianInitials}
             </span>
             <span className="text-[13px] font-semibold text-slate-800 whitespace-nowrap hidden md:inline">
-              {VEHICLE_PROFILE.technicianName}
+              {profile.technicianName}
             </span>
             <ChevronDown className="w-3.5 h-3.5 text-slate-500 hidden md:inline" />
           </motion.button>
@@ -328,17 +324,17 @@ export function TopNavBar({
               >
                 <div className="pb-2.5 border-b border-slate-100">
                   <div className="text-sm font-semibold text-slate-900">
-                    {VEHICLE_PROFILE.technicianName}
+                    {profile.technicianName}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {VEHICLE_PROFILE.technicianRole}
+                    {profile.technicianRole}
                   </div>
                 </div>
                 <div className="pt-2.5 space-y-1 text-xs text-slate-600">
                   <div className="flex justify-between py-1">
                     <span>Vehicle</span>
                     <span className="font-semibold text-slate-900">
-                      {VEHICLE_PROFILE.model}
+                      {profile.model}
                     </span>
                   </div>
                   <div className="flex justify-between py-1">

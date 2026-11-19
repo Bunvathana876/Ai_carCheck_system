@@ -1,8 +1,16 @@
+# Dependencies and generated workspace output
 node_modules/
-build/
 dist/
 coverage/
-.DS_Store
-*.log
+
+# Local configuration and persistent backend data
 .env*
 !.env.example
+/backend/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local tooling files
+.DS_Store
+*.log

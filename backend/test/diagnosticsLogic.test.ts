@@ -7,8 +7,8 @@ import {
   getWeekDays,
   shiftIsoDateByDays,
   sortOrFilterModules,
-} from './diagnosticsLogic';
-import { INITIAL_BATTERY_MODULES } from '../data/mockDiagnostics';
+} from '@voltguard/shared/diagnosticsLogic';
+import { INITIAL_BATTERY_MODULES } from '../src/data/seed.js';
 
 test('calculatePackSummary reflects all modules active at 78% charge', () => {
   const summary = calculatePackSummary(INITIAL_BATTERY_MODULES, 78, 412);

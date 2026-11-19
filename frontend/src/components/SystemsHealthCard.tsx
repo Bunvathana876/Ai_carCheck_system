@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { motion } from 'motion/react';
-import type { SystemMetric } from '../types/diagnostics';
+import type { SystemMetric } from '@voltguard/shared/diagnostics';
 
 interface SystemsHealthCardProps {
   systems: SystemMetric[];

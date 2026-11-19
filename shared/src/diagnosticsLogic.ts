@@ -2,7 +2,7 @@ import type {
   BatteryModule,
   CalendarDay,
   DiagnosticTab,
-} from '../types/diagnostics';
+} from './diagnostics.js';
 
 const MONTH_NAMES = [
   'January',

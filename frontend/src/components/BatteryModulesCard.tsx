@@ -1,7 +1,7 @@
 import { SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { BatteryModule } from '../types/diagnostics';
-import { sortOrFilterModules } from '../utils/diagnosticsLogic';
+import type { BatteryModule } from '@voltguard/shared/diagnostics';
+import { sortOrFilterModules } from '@voltguard/shared/diagnosticsLogic';
 
 interface BatteryModulesCardProps {
   modules: BatteryModule[];

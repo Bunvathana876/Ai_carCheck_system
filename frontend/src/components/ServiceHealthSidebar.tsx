@@ -6,17 +6,18 @@ import {
   ChevronRight,
   Plus,
   Wrench,
+  X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type {
   ConnectedAsset,
   ServiceEvent,
-} from '../types/diagnostics';
+} from '@voltguard/shared/diagnostics';
 import {
   formatDisplayDate,
   getWeekDays,
   shiftIsoDateByDays,
-} from '../utils/diagnosticsLogic';
+} from '@voltguard/shared/diagnosticsLogic';
 
 interface ServiceHealthSidebarProps {
   assets: ConnectedAsset[];
@@ -24,6 +25,7 @@ interface ServiceHealthSidebarProps {
   onSelectDate: (isoDate: string) => void;
   eventsByDate: Record<string, ServiceEvent[]>;
   onAddQuickCheck: (isoDate: string, timeSlot: ServiceEvent['timeSlot']) => void;
+  onCancelEvent: (eventId: string) => void;
 }
 
 const TIME_SLOTS: ServiceEvent['timeSlot'][] = [
@@ -40,6 +42,7 @@ export function ServiceHealthSidebar({
   onSelectDate,
   eventsByDate,
   onAddQuickCheck,
+  onCancelEvent,
 }: ServiceHealthSidebarProps) {
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const weekDays = getWeekDays(selectedDate);
@@ -260,7 +263,7 @@ export function ServiceHealthSidebar({
                         <Wrench className="w-3.5 h-3.5" />
                       )}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="text-[13px] font-semibold text-slate-900 leading-snug">
                         {event.title}
                       </div>
@@ -268,6 +271,7 @@ export function ServiceHealthSidebar({
                         {event.subtitle}
                       </div>
                     </div>
+                    <button type="button" onClick={() => onCancelEvent(event.id)} aria-label={`Cancel ${event.title} at ${slot}`} className="shrink-0 rounded-full p-1 text-slate-500 hover:bg-white hover:text-red-700"><X className="h-4 w-4" /></button>
                   </motion.div>
                 ) : (
                   <button
@@ -276,7 +280,7 @@ export function ServiceHealthSidebar({
                     aria-label={`Schedule diagnostic check at ${slot}`}
                     className="group w-full h-9 flex items-center justify-end border-b border-slate-100 hover:border-[#0B5D44]/30 transition-colors cursor-pointer"
                   >
-                    <span className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-[11px] font-medium text-[#0B5D44] flex items-center gap-1 transition-opacity pr-1">
+                    <span className="opacity-100 text-[11px] font-medium text-[#0B5D44] flex items-center gap-1 transition-opacity pr-1">
                       <Plus className="w-3 h-3" />
                       Schedule check
                     </span>

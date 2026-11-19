@@ -1,18 +1,11 @@
+import { ASSET_IMAGES } from '@voltguard/shared/assets';
 import type {
   BatteryModule,
   ConnectedAsset,
   NotificationItem,
   ServiceEvent,
   SystemMetric,
-  VehicleHotspot,
-} from '../types/diagnostics';
-
-export const ASSET_IMAGES = {
-  evCutaway: '/src/assets/images/ev_cutaway_hero_1795015322495.jpg',
-  batteryModule: '/src/assets/images/battery_module_pack_1795015325232.jpg',
-  frontDriveMotor: '/src/assets/images/front_drive_motor_1795015350388.jpg',
-  coolantRadiator: '/src/assets/images/coolant_radiator_unit_1795015326856.jpg',
-} as const;
+} from '@voltguard/shared/diagnostics';
 
 export const VEHICLE_PROFILE = {
   brand: 'Voltguard',
@@ -137,39 +130,6 @@ export const CONNECTED_ASSETS: ConnectedAsset[] = [
     status: 'Ready on Standby',
     tone: 'dark-green',
     kind: 'overflow',
-  },
-];
-
-export const VEHICLE_HOTSPOTS: VehicleHotspot[] = [
-  {
-    id: 'hotspot-thermal',
-    tab: 'thermal',
-    label: 'Front Radiator & Heat Pump',
-    summary: 'Coolant loop inlet 31.2 °C · Valve open 64%',
-    metricValue: '31.2 °C',
-    xPercent: 21,
-    yPercent: 72,
-    variant: 'thermal',
-  },
-  {
-    id: 'hotspot-drivetrain',
-    tab: 'drivetrain',
-    label: 'Front e-Axle & Inverter',
-    summary: 'Dual PMSM torque split 45/55 · 72% Drive Health',
-    metricValue: '72% Health',
-    xPercent: 27,
-    yPercent: 57,
-    variant: 'drivetrain',
-  },
-  {
-    id: 'hotspot-battery',
-    tab: 'battery',
-    label: 'Floorpan HV Battery Pack',
-    summary: '4 modules active · 3 mV variance · 396.1 V bus',
-    metricValue: '78% charge',
-    xPercent: 48.5,
-    yPercent: 57,
-    variant: 'battery',
   },
 ];
 
