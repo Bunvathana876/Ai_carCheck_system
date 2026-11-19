@@ -1,60 +1,79 @@
-# Voltguard EV Diagnostic System
+# Ai CarCheck & Voltguard: University-Level Automotive Expert System
 
 [![Node.js](https://img.shields.io/badge/Node.js-24%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL%20Mode-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Expert System](https://img.shields.io/badge/Inference-Forward%20Chaining-0B5D44)](docs/INFERENCE_ENGINE_ALGORITHM.md)
+[![Rules](https://img.shields.io/badge/Rules%20Catalog-50%20Unique%20Rules-purple)](docs/RULE_TRACEABILITY_MATRIX.md)
 
-An interactive **Electric Vehicle (EV) Diagnostic & Telemetry System** built as an engineering console for workshop technicians. The system provides real-time monitoring of high-voltage battery modules, electric powertrains, and thermal cooling circuits, featuring dynamic pack rebalancing, appointment scheduling, and persistent SQLite storage.
+**Ai CarCheck** is a deterministic, explainable, rule-based automotive expert system for vehicle fault diagnosis, paired with the **Voltguard** high-voltage EV telemetry simulation lab. Designed as a final-year university engineering project, the diagnostic engine operates **100% locally without third-party AI APIs**, utilizing pure forward-chaining inference over a verified knowledge base of **exactly 50 diagnostic rules**.
 
 ---
 
 ## What Does This Project Do?
 
-Voltguard simulates a high-voltage EV diagnostic workstation (such as for a *Lead HV Diagnostics Engineer* in a service bay). It enables technicians to:
+1. **Vehicle Registration & Compatibility Filtering**: Supports gasoline, diesel, hybrid, and battery-electric vehicles across automatic, manual, CVT, and direct-drive transmissions. Incompatible rules are automatically filtered out.
+2. **Deterministic Forward Chaining**: Evaluates user-selected symptoms and physical measurements against IF–THEN rules with tri-state logic (True, False, Unknown) and cycle prevention.
+3. **Interactive Follow-Up Questioning**: Selects the most informative follow-up questions to differentiate competing hypotheses without repeating answered queries.
+4. **Transparent Evidence Explanations**: Details which confirmed facts support each hypothesis, which facts contradict competing faults, and what missing checks remain.
+5. **Urgent Safety Overrides**: Detects critical hazards (e.g. hydraulic brake failure, traction-battery thermal runaway, zero oil pressure) and executes safety guidance before ordinary fault ranking.
+6. **Knowledge Base Administration**: Authorized administrators can manage, edit, activate/retire rules, and record formal peer reviews with credentials.
+7. **Voltguard EV Telemetry Lab**: Fully preserves interactive high-voltage EV pack rebalancing, dynamic range derating, 3D-style cutaway inspection, and workshop scheduling.
 
-1. **Monitor High-Voltage Telemetry**: Inspect individual battery modules (voltage, cell delta $\text{mV}$, operating temperature, state of health $\text{SOH}$) and powertrain components.
-2. **Simulate Battery Module Isolation**: Switch off degraded modules and watch the system dynamically recalculate the vehicle's effective State of Charge ($\text{SOC}$), driving range, bus voltage, and motor health.
-3. **Explore Interactive Vehicle Systems**: Rotate the vehicle through multiple 3D-style angles (3/4 Cutaway, Chassis Zoom, Flipped Profile) and inspect focal hotspots.
-4. **Schedule Workshop Services**: Book diagnostic inspections into specific time slots on an interactive 7-day calendar, complete with double-booking prevention.
-5. **Switch Between Vehicles**: Toggle between Workshop Bay 03, Workshop Bay 01, and Dyno Cell 02—each maintaining isolated persistent diagnostic telemetry.
-6. **Run Diagnostic Scans**: Trigger full-vehicle scans that record immutable timestamped reports and update the technician's notification feed.
+---
+
+## 50 Diagnostic Rules Catalog
+
+The knowledge base implements exactly 50 uniquely identified rules grouped into eight categories:
+
+| Category | Rule IDs | Domain Focus |
+| :--- | :--- | :--- |
+| **A. Starting & Electrical** | `EL01` – `EL08` (8) | 12V battery sulfation, parasitic draw, alternator charging, starter circuits, grounds |
+| **B. Gasoline Engine** | `EN01` – `EN10` (10) | Ignition misfires, fuel delivery, vacuum leaks, MAF sensors, O2 heaters, catalytic converter, throttle control, CKP, EVAP, compression |
+| **C. Cooling & Lubrication** | `TH01` – `TH07` (7) | Coolant leaks, fan relays, thermostats, water pumps, critical oil pressure, A/C circuits |
+| **D. Braking Systems** | `BR01` – `BR05` (5) | Master cylinder bypass, vacuum booster assist, ABS wheel sensors, worn pad friction, seized calipers |
+| **E. Steering & Suspension** | `CH01` – `CH06` (6) | Under-inflated tires (TPMS), alignment scrub, wheel balance, ball joints, EPS assist, hub bearings |
+| **F. Transmission & Drivetrain**| `DR01` – `DR05` (5) | Automatic clutch slip, manual clutch slip, shift solenoids, CV joints, U-joint driveline lash |
+| **G. Diesel Engine Systems** | `DS01` – `DS03` (3) | Glow plug preheating, common rail fuel pressure deficit, DPF soot loading |
+| **H. Electric & Hybrid Vehicles**| `EV01` – `EV06` (6) | OBC charging faults, 12V aux battery inhibiting READY mode, HV isolation loss, thermal runaway hazard, inverter IGBTs, hybrid cooling fans |
+
+See [docs/RULE_TRACEABILITY_MATRIX.md](docs/RULE_TRACEABILITY_MATRIX.md) for full citations and test cases.
 
 ---
 
 ## System Architecture
 
-Voltguard is structured as an **npm workspaces monorepo** where the frontend and backend are completely decoupled and share only pure contracts and business logic via `@voltguard/shared`:
-
 ```mermaid
 flowchart LR
     subgraph Browser ["Frontend (Port 3000)"]
-        UI["React 19 Dashboard"]
-        State["useDashboard Hook"]
-        API["Typed HTTP Client"]
+        UI["React 19 SPA"]
+        Mode["App Modes: Expert / History / KB / EV"]
+        APIClient["Typed API Client"]
     end
 
     subgraph Server ["Backend (Port 3001)"]
-        Express["Express 5 REST API"]
+        Router["Express REST Endpoints"]
+        Security["Auth & Origin Guards"]
         Store["DiagnosticStore"]
-        DB[("Native SQLite (WAL)")]
+        DB[("Native SQLite WAL")]
     end
 
-    subgraph SharedPackage ["@voltguard/shared"]
-        Contracts["TypeScript Interfaces"]
-        Logic["EV Math & Calendar Logic"]
+    subgraph Shared ["@voltguard/shared"]
+        Contracts["TypeScript Domain Types"]
+        Inference["Forward Chaining Engine"]
+        Safety["Safety Pre-Emption Engine"]
+        Catalog["50 Rules & Symptoms Catalog"]
     end
 
-    UI --> State --> API
-    API -- "HTTP REST (/api)" --> Express
-    Express --> Store --> DB
-    UI -.-> Contracts
-    Store -.-> Logic
-    Store -.-> Contracts
+    UI --> Mode --> APIClient
+    APIClient -- "HTTP REST /api" --> Router
+    Router --> Security --> Store --> DB
+    Store --> Inference
+    Inference --> Safety
+    Inference --> Catalog
+    Inference --> Contracts
 ```
-
-For detailed system design, concurrency model, and data schemas, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
@@ -63,27 +82,45 @@ For detailed system design, concurrency model, and data schemas, see [ARCHITECTU
 ```text
 Ai_carCheck_system/
 ├── frontend/                # React 19 website & UI components
-│   ├── src/                 # Components, hooks, custom SVG gauges, and styles
-│   ├── public/              # Static web assets
-│   ├── vite.config.ts       # Vite configuration with API reverse proxy
-│   └── package.json         # Frontend dependencies and scripts
+│   ├── src/
+│   │   ├── components/      # ExpertDiagnosisView, KnowledgeBaseView, HistoryView, EV cards
+│   │   ├── hooks/           # useDashboard hook
+│   │   ├── lib/api.ts       # Typed HTTP client for all expert and EV endpoints
+│   │   └── App.tsx          # Master application shell with tab switcher
+│   └── package.json
 │
 ├── backend/                 # Node.js 24 + Express REST API
-│   ├── src/                 # Express app, SQLite store, and database seeding
-│   ├── test/                # API and calculation test suites
-│   ├── data/                # Local SQLite database (voltguard.sqlite)
-│   └── package.json         # Backend dependencies and scripts
+│   ├── src/
+│   │   ├── store.ts         # SQLite WAL persistence, rule reviews, sessions, seeding
+│   │   ├── app.ts           # REST routes, validation, admin authorization
+│   │   └── index.ts         # Server startup & graceful shutdown
+│   ├── test/
+│   │   ├── expertRules.test.ts # 100+ rule scenario tests (positive + negative)
+│   │   ├── expertApi.test.ts   # REST API & admin auth tests
+│   │   └── app.test.ts         # Persistence, transactions, and security tests
+│   └── package.json
 │
 ├── shared/                  # Framework-independent domain package
-│   ├── src/                 # Shared types, telemetry contracts, and math formulas
-│   └── package.json         # Package exports (@voltguard/shared)
+│   ├── src/
+│   │   ├── expert/          # Forward-chaining engine, safety engine, 50 rules catalog
+│   │   ├── diagnostics.ts   # Telemetry interfaces
+│   │   └── diagnosticsLogic.ts # Pack summary & calendar logic
+│   └── package.json
 │
-├── tests/integration/       # Full-stack integration tests
-│   └── App.test.tsx         # Headless browser + live API test suite
+├── tests/integration/       # Full-stack headless DOM integration tests
+│   ├── App.test.tsx         # EV telemetry integration test
+│   └── ExpertDiagnosis.test.tsx # Expert diagnosis user journey test
 │
-├── ARCHITECTURE.md          # In-depth architectural documentation
-├── package.json             # Root workspace definitions & unified scripts
-└── package-lock.json        # Reproducible dependency lockfile
+├── docs/                    # University Project Documentation
+│   ├── SRS.md               # Software Requirements Specification
+│   ├── SYSTEM_ARCHITECTURE.md # Architecture, ERD, Use-Case, DFD diagrams
+│   ├── INFERENCE_ENGINE_ALGORITHM.md # Formal forward-chaining algorithm & pseudocode
+│   ├── RULE_TRACEABILITY_MATRIX.md   # 50-rule matrix (Source -> Code -> Tests -> Status)
+│   └── TESTING_STRATEGY_AND_RESULTS.md # Empirical test report (20 test suites, 100% pass)
+│
+├── README.md                # Project documentation
+├── ARCHITECTURE.md          # Technical design specification
+└── package.json             # Root workspace definitions & unified scripts
 ```
 
 ---
@@ -91,91 +128,22 @@ Ai_carCheck_system/
 ## Quick Start
 
 ### Prerequisites
-- **Node.js 24 or newer** (verify with `node -v`)
-- npm (bundled with Node.js)
+- **Node.js 24 or newer** (`node -v`)
+- npm
 
 ### 1. Install Dependencies
 ```sh
 npm ci
 ```
 
-### 2. Start the Development Server
+### 2. Start Everything in Development Mode
 ```sh
 npm run dev
 ```
 
-This single command:
-1. Builds `@voltguard/shared` and watches for TypeScript changes.
-2. Starts the **Backend API** at [http://127.0.0.1:3001](http://127.0.0.1:3001/api/health).
-3. Starts the **Frontend Web App** at [http://127.0.0.1:3000](http://127.0.0.1:3000).
-
-> [!NOTE]
-> No database installation, Docker, cloud account, or API keys are required. The SQLite database is automatically created and seeded in `backend/data/voltguard.sqlite` on first startup.
-
----
-
-## Available Commands
-
-| Command | Purpose |
-| :--- | :--- |
-| `npm run dev` | Runs shared watcher, backend API, and frontend Vite server together |
-| `npm run dev:frontend` | Runs only the frontend development server |
-| `npm run dev:backend` | Runs only the backend development server |
-| `npm run check` | **Full verification**: runs TypeScript linting, all tests, and production builds |
-| `npm test` | Runs unit tests, database persistence tests, and integration tests |
-| `npm run test:integration` | Runs headless browser-to-API integration tests |
-| `npm run build` | Compiles `@voltguard/shared`, frontend, and backend for production |
-| `npm start` | Serves the production build (frontend + API) on [http://127.0.0.1:3001](http://127.0.0.1:3001) |
-| `npm run clean` | Deletes build output (`dist/`), safely keeping the SQLite database |
-
----
-
-## Configuration
-
-Both frontend and backend work out-of-the-box with zero configuration. To customize ports or paths, copy the example environment files:
-
-```sh
-cp frontend/.env.example frontend/.env
-cp backend/.env.example backend/.env
-```
-
-| Workspace | Variable | Default | Description |
-| :--- | :--- | :--- | :--- |
-| **Backend** | `PORT` | `3001` | API listen port |
-| **Backend** | `HOST` | `127.0.0.1` | Network bind address |
-| **Backend** | `DATABASE_PATH` | `./data/voltguard.sqlite` | SQLite database file location |
-| **Backend** | `ALLOWED_ORIGINS` | `http://127.0.0.1:3000,http://localhost:3000` | Permitted browser origins |
-| **Frontend**| `API_PROXY_TARGET` | `http://127.0.0.1:3001` | Target backend URL for Vite proxy |
-
----
-
-## REST API Reference
-
-All requests and responses use JSON. Mutating operations (`POST`, `PATCH`, `DELETE`) require `Content-Type: application/json`.
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/health` | Service and SQLite health status |
-| `GET` | `/api/vehicles` | Returns array of vehicle profiles (`bay-03`, `bay-01`, `dyno-02`) |
-| `GET` | `/api/vehicles/:id/dashboard` | Returns full vehicle state and computed pack summaries |
-| `PATCH` | `/api/vehicles/:id/modules/:moduleId` | Enables or disables a battery module (`{"enabled": false}`) |
-| `POST` | `/api/vehicles/:id/scans` | Executes a diagnostic scan and records an immutable report |
-| `POST` | `/api/vehicles/:id/notifications/read-all` | Marks all vehicle notifications as read |
-| `POST` | `/api/vehicles/:id/service-events` | Schedules a service slot (`{"date": "2026-12-01", "timeSlot": "09:00"}`) |
-| `DELETE`| `/api/vehicles/:id/service-events/:eventId` | Cancels a booked service event |
-
----
-
-## Understanding EV Telemetry Metrics
-
-Voltguard models realistic electric vehicle engineering parameters:
-
-- **State of Health (SOH %)**: Reflects total battery degradation compared to factory capacity. Voltguard displays module SOH (e.g. 98%, 97%).
-- **Cell Delta ($\Delta\text{mV}$)**: The voltage difference between the strongest and weakest parallel cell groups. A low delta ($2\text{--}5\text{ mV}$) indicates excellent balance; elevated deltas indicate defective cells or thermal unevenness.
-- **Dynamic Derating**: Disabling a module recalculates effective charge and range:
-  $$\text{EffectiveCharge} = \text{round}\left(\text{BaseCharge} \times \frac{\text{ActiveModules}}{\text{TotalModules}}\right)$$
-  Disabling modules also automatically derates the front-drive motor health to simulate inverter thermal and current limiting.
-- **Cooling Circuit**: Tracks dual-loop coolant flow ($12.4\text{ L/min}$) and pump speed ($2,400\text{ RPM}$) via a custom centrifugal impeller SVG gauge.
+- **Frontend Application**: [http://127.0.0.1:3000](http://127.0.0.1:3000)
+- **Backend API Health**: [http://127.0.0.1:3001/api/health](http://127.0.0.1:3001/api/health)
+- **Database**: `backend/data/voltguard.sqlite` (automatically created & seeded)
 
 ---
 
@@ -187,20 +155,63 @@ To run the complete verification suite:
 npm run check
 ```
 
-This verifies:
-1. **Strict TypeScript checks** across `shared`, `backend`, `frontend`, and `tests`.
-2. **Pure calculation engine tests** (`diagnosticsLogic.test.ts`).
-3. **Database persistence and security tests** (`app.test.ts`), confirming:
-   - Data persists across database file close/reopen.
-   - Separate vehicle bays remain strictly isolated.
-   - Cross-origin writes (`403`), duplicate bookings (`409`), bad dates (`400`), and oversized bodies (`413`) are cleanly rejected.
-4. **End-to-end integration tests** (`App.test.tsx`), rendering the real React UI against a real Express server in JSDOM and validating user interactions, offline recovery, and dynamic telemetry updates.
-5. **Full production builds** for all three workspaces.
+This command executes:
+1. **Strict TypeScript checks** across all workspaces.
+2. **18 Backend test suites** (`npm test --workspace backend`), including:
+   - Positive and negative evaluation scenarios for **all 50 rules** (over 100 test scenarios).
+   - Incompatible vehicle isolation (ICE vs EV, Manual vs Automatic, Diesel vs Gasoline).
+   - Safety engine overrides and critical flags.
+   - Deterministic inference reproducibility.
+   - REST API endpoints and administrative authorization.
+   - Database WAL persistence across connection reopens.
+3. **2 Full-stack integration tests** (`npm run test:integration`) in JSDOM.
+4. **Full production builds** for `shared`, `frontend`, and `backend`.
 
 ---
 
-## Documentation
+## REST API Reference
 
-- **[System Architecture (ARCHITECTURE.md)](ARCHITECTURE.md)**: Deep dive into design decisions, state machines, and data structures.
-- **[Frontend Guide (frontend/README.md)](frontend/README.md)**: UI components, styling, and client configuration.
-- **[Backend Guide (backend/README.md)](backend/README.md)**: API routes, SQLite storage, transactions, and deployment.
+All requests and responses use JSON.
+
+### Expert System Endpoints
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/expert-vehicles` | Returns registered vehicle profiles |
+| `POST` | `/api/expert-vehicles` | Registers a new vehicle profile |
+| `GET` | `/api/symptoms` | Lists diagnostic symptoms (`?category=...`) |
+| `GET` | `/api/diagnostic-rules` | Lists 50 rules (`?category=...&status=...`) |
+| `GET` | `/api/diagnostic-rules/:id`| Returns single rule specification |
+| `POST` | `/api/diagnoses` | Starts session with vehicle and symptom codes |
+| `GET` | `/api/diagnoses/:id` | Gets session state and working memory |
+| `POST` | `/api/diagnoses/:id/answers`| Submits answer to follow-up question |
+| `GET` | `/api/diagnoses/:id/results`| Evaluates forward chaining and returns results |
+| `GET` | `/api/diagnoses/history` | Lists past diagnostic sessions |
+
+### Admin Endpoints (Requires `x-admin-key: carcheck-admin-2026`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/admin/rules` | Proposes a new rule |
+| `PATCH`| `/api/admin/rules/:id` | Updates an existing rule or toggles enabled state |
+| `POST` | `/api/admin/rules/:id/reviews`| Records peer review with reviewer credentials and status |
+
+### Voltguard EV Dashboard Endpoints
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/health` | Service and SQLite health status |
+| `GET` | `/api/vehicles` | Voltguard test vehicle profiles |
+| `GET` | `/api/vehicles/:id/dashboard` | Vehicle state and computed pack summary |
+| `PATCH`| `/api/vehicles/:id/modules/:id` | Toggles battery module enabled/disabled |
+| `POST` | `/api/vehicles/:id/scans` | Runs sample battery scan snapshot |
+| `POST` | `/api/vehicles/:id/service-events`| Schedules service event |
+| `DELETE`| `/api/vehicles/:id/service-events/:id`| Cancels scheduled service event |
+
+---
+
+## Academic & Technical Documentation
+
+- **[Software Requirements Specification (SRS)](docs/SRS.md)**
+- **[System Architecture & Diagrams (ERD, Use-Case, DFD)](docs/SYSTEM_ARCHITECTURE.md)**
+- **[Inference Engine Algorithm & Pseudocode](docs/INFERENCE_ENGINE_ALGORITHM.md)**
+- **[Rule Traceability Matrix (All 50 Rules)](docs/RULE_TRACEABILITY_MATRIX.md)**
+- **[Testing Strategy & Empirical Results](docs/TESTING_STRATEGY_AND_RESULTS.md)**
+- **[System Architecture Details](ARCHITECTURE.md)**

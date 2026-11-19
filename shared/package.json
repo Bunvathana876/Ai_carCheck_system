@@ -24,6 +24,10 @@
     "./assets": {
       "types": "./dist/assets.d.ts",
       "default": "./dist/assets.js"
+    },
+    "./expert": {
+      "types": "./dist/expert/index.d.ts",
+      "default": "./dist/expert/index.js"
     }
   },
   "devDependencies": {
