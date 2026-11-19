@@ -1,0 +1,6 @@
+{
+  "name": "Voltguard EV Diagnostic Dashboard",
+  "description": "Electric vehicle diagnostic health dashboard with interactive battery, drivetrain, and thermal telemetry, module switches, animated system gauges, and service timeline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
